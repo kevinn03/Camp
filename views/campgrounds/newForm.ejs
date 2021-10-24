@@ -1,32 +1,58 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create</title>
-  </head>
-  <body>
-    <h1>Add Campgrounds</h1>
+<% layout("layouts/boilerplate") %>
 
+<div class="row">
+  <h1 class="text-center">Add Campgrounds</h1>
+  <div class="col-6 offset-3">
     <form action="/campgrounds" method="post">
-      <label for="title">Title:</label>
-      <input type="text" id="title" name="title" />
-      <br />
-      <label for="price">Price:</label>
-      <input type="text" id="price" name="price" />
-      <br />
-      <label for="description">Description:</label>
-      <input type="text" id="description" name="description" />
-      <br />
-      <label for="locationC">City:</label>
-      <input type="text" id="locationC" name="locationC" />
+      <div class="mb-3">
+        <label class="form-label" for="title">Title:</label>
+        <input class="form-control" type="text" id="title" name="title" />
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label" for="price">Price:</label>
+        <div class="input-group">
+          <span class="input-group-text" id="price-label">$</span>
+          <input name="price" id="price" type="text" class="form-control" placeholder="0.00" aria-label="price" aria-describedby="price-label">
+        </div>
+      </div>
+      
+      <div class="mb-3">
+        <label class="form-label" for="locationC">City:</label>
+        <input
+          class="form-control"
+          type="text"
+          id="locationC"
+          name="locationC"
+        />
+      </div>
 
-      <label for="locationP">Province:</label>
-      <input type="text" id="locationP" name="locationP" />
-      <br />
-      <button>Add Campground</button>
+      <div class="mb-3">
+        <label class="form-label" for="locationP">Province:</label>
+        <input
+          class="form-control"
+          type="text"
+          id="locationP"
+          name="locationP"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="image">Image:</label>
+        <input class="form-control" type="text" id="image" name="image" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="description">Description:</label>
+        <textarea class="form-control" type="text" id="description"
+        name="description"></textarea> </textarea>
+      </div>
+
+      <div class="mb-3">
+        <button class="btn btn-success">Add Campground</button>
+      </div>
     </form>
-
     <a href="/campgrounds">All Campgrounds</a>
-  </body>
-</html>
+  </div>
+</div>
+
+

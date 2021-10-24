@@ -1,7 +1,10 @@
 const express = require("express");
 const methodOverride = require("method-override");
-const app = express();
+
 const path = require("path");
+const ejsMate = require("ejs-mate");
+const app = express();
+app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
 
 //parsers
