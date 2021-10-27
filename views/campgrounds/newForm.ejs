@@ -3,17 +3,18 @@
 <div class="row">
   <h1 class="text-center">Add Campgrounds</h1>
   <div class="col-6 offset-3">
-    <form action="/campgrounds" method="post">
+    <form action="/campgrounds" method="post" novalidate class="validated-form">
       <div class="mb-3">
         <label class="form-label" for="title">Title:</label>
-        <input class="form-control" type="text" id="title" name="title" />
+        <input class="form-control" type="text" id="title" name="campground[title]" required />
+        
       </div>
       
       <div class="mb-3">
         <label class="form-label" for="price">Price:</label>
         <div class="input-group">
           <span class="input-group-text" id="price-label">$</span>
-          <input name="price" id="price" type="text" class="form-control" placeholder="0.00" aria-label="price" aria-describedby="price-label">
+          <input name="campground[price]" id="price" type="text" class="form-control" placeholder="0.00" aria-label="price" aria-describedby="price-label" required>
         </div>
       </div>
       
@@ -23,7 +24,8 @@
           class="form-control"
           type="text"
           id="locationC"
-          name="locationC"
+          name="campground[locationC]"
+          required
         />
       </div>
 
@@ -33,18 +35,19 @@
           class="form-control"
           type="text"
           id="locationP"
-          name="locationP"
+          name="campground[locationP]"
+          required
         />
       </div>
 
       <div class="mb-3">
         <label class="form-label" for="image">Image:</label>
-        <input class="form-control" type="text" id="image" name="image" />
+        <input class="form-control" type="text" id="image" name="campground[image]" required />
       </div>
       <div class="mb-3">
         <label class="form-label" for="description">Description:</label>
         <textarea class="form-control" type="text" id="description"
-        name="description"></textarea> </textarea>
+        name="campground[description]" required></textarea> </textarea>
       </div>
 
       <div class="mb-3">
@@ -54,5 +57,6 @@
     <a href="/campgrounds">All Campgrounds</a>
   </div>
 </div>
+
 
 

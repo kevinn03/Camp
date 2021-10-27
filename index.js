@@ -7,12 +7,14 @@ const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
 
+const { campgroundSchema } = require("./schemas.js");
 //parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
+const asyncWrapper = require("./utility/asyncWrapper");
+const ExpressError = require("./utility/ExpressError");
 const mongoose = require("mongoose");
 
 main().catch((err) => console.log(err));
@@ -22,11 +24,24 @@ async function main() {
 }
 const Campground = require("./model/campground");
 
+const validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((ele) => ele.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
+};
+
 //index
-app.get("/campgrounds", async (req, res) => {
-  const campgrounds = await Campground.find({});
-  res.render("campgrounds/index.ejs", { campgrounds });
-});
+app.get(
+  "/campgrounds",
+  asyncWrapper(async (req, res) => {
+    const campgrounds = await Campground.find({});
+    res.render("campgrounds/index.ejs", { campgrounds });
+  })
+);
 
 //serve create form
 app.get("/campgrounds/new", async (req, res) => {
@@ -34,65 +49,82 @@ app.get("/campgrounds/new", async (req, res) => {
 });
 
 //create
-app.post("/campgrounds", async (req, res) => {
-  const obj = {
-    ...req.body,
-    location: `${req.body.locationC}, ${req.body.locationP}`,
-  };
+app.post(
+  "/campgrounds",
+  validateCampground,
+  asyncWrapper(async (req, res, next) => {
+    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
 
-  const campgrounds = new Campground(obj);
-  await campgrounds.save();
-  res.redirect("/campgrounds");
-});
+    const campgrounds = new Campground(req.body.campground);
+    await campgrounds.save();
+    res.redirect("/campgrounds");
+  })
+);
 
 //show
-app.get("/campgrounds/:id", async (req, res) => {
-  const { id } = req.params;
-  const campgrounds = await Campground.findById(id);
-  res.render("campgrounds/show.ejs", { campgrounds });
-});
+app.get(
+  "/campgrounds/:id",
+  asyncWrapper(async (req, res) => {
+    const { id } = req.params;
+    const campgrounds = await Campground.findById(id);
+    res.render("campgrounds/show.ejs", { campgrounds });
+  })
+);
 
 // serve edit form
-app.get("/campgrounds/:id/edit", async (req, res) => {
-  const { id } = req.params;
-  const campgrounds = await Campground.findById(id);
-  const locArr = campgrounds.location.split(",");
-  locArr[0] = locArr[0].trim();
-  locArr[1] = locArr[1].trim();
-  res.render("campgrounds/edit.ejs", { campgrounds, locArr });
-});
+app.get(
+  "/campgrounds/:id/edit",
+  asyncWrapper(async (req, res) => {
+    const { id } = req.params;
+    const campgrounds = await Campground.findById(id);
+    const locArr = campgrounds.location.split(",");
+    locArr[0] = locArr[0].trim();
+    locArr[1] = locArr[1].trim();
+    res.render("campgrounds/edit.ejs", { campgrounds, locArr });
+  })
+);
 
 //update
-app.patch("/campgrounds/:id", async (req, res) => {
-  const { id: sid } = req.params;
+app.patch(
+  "/campgrounds/:id",
+  validateCampground,
+  asyncWrapper(async (req, res) => {
+    const { id } = req.params;
+    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
 
-  try {
-    const campgrounds = await Campground.findOneAndUpdate(
-      { id: sid },
-      { ...req.body, location: `${req.body.locationC}, ${req.body.locationP}` },
-
+    const campgrounds = await Campground.findByIdAndUpdate(
+      id,
+      { ...req.body.campground },
       {
         runValidators: true,
       }
     );
-    console.log(campgrounds);
+
     res.redirect(`/campgrounds/${campgrounds._id}`);
-  } catch (e) {
-    console.log(e);
-  }
-});
+  })
+);
 
 //delete
-app.delete("/campgrounds/:id", async (req, res) => {
-  const { id: sid } = req.params;
-  try {
+app.delete(
+  "/campgrounds/:id",
+  asyncWrapper(async (req, res) => {
+    const { id: sid } = req.params;
+
     await Campground.findByIdAndDelete(sid);
     console.log("Deleted!");
-  } catch (e) {
-    console.log(e);
-  }
 
-  res.redirect("/campgrounds");
+    res.redirect("/campgrounds");
+  })
+);
+
+app.all("*", (req, res, next) => {
+  next(new ExpressError("Page not Found", 404));
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500 } = err;
+  if (!err.message) err.message = "Something went wrong";
+  res.status(statusCode).render("error", { err });
 });
 
 app.listen(3000, () => {

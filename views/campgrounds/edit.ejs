@@ -1,15 +1,21 @@
 <% layout("layouts/boilerplate") %>
 <h1><%= campgrounds.title %></h1>
 
-<form action="/campgrounds/<%= campgrounds._id%>?_method=patch " method="post">
+<form
+  action="/campgrounds/<%= campgrounds._id%>?_method=patch"
+  method="post"
+  novalidate
+  class="validated-form"
+>
   <div class="mb-3">
     <label class="form-label" for="title">Title:</label>
     <input
       class="form-control"
       type="text"
       id="title"
-      name="title"
+      name="campground[title]"
       value="<%= campgrounds.title%>"
+      required
     />
   </div>
 
@@ -18,7 +24,7 @@
     <div class="input-group">
       <span class="input-group-text" id="price-label">$</span>
       <input
-        name="price"
+        name="campground[price]"
         id="price"
         type="text"
         class="form-control"
@@ -26,6 +32,7 @@
         aria-label="price"
         aria-describedby="price-label"
         value="<%= campgrounds.price%>"
+        required
       />
     </div>
   </div>
@@ -36,8 +43,9 @@
       class="form-control"
       type="text"
       id="locationC"
-      name="locationC"
-      value="<%= locArr[0]%>"
+      name="campground[locationC]"
+      value="<%=locArr[0]%>"
+      required
     />
   </div>
 
@@ -47,8 +55,9 @@
       class="form-control"
       type="text"
       id="locationP"
-      name="locationP"
-      value="<%= locArr[1]%>"
+      name="campground[locationP]"
+      value="<%=locArr[1]%>"
+      required
     />
   </div>
 
@@ -58,8 +67,9 @@
       class="form-control"
       type="text"
       id="image"
-      name="image"
+      name="campground[image]"
       value="<%= campgrounds.image%>"
+      required
     />
   </div>
   <div class="mb-3">
@@ -68,7 +78,8 @@
       class="form-control"
       type="text"
       id="description"
-      name="description"
+      name="campground[description]"
+      required
     >
 <%= campgrounds.description%></textarea
     >
