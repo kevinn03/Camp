@@ -2,7 +2,7 @@
 <h1><%= campgrounds.title %></h1>
 
 <form
-  action="/campgrounds/<%= campgrounds._id%>?_method=patch "
+  action="/campgrounds/<%= campgrounds._id%>?_method=patch"
   method="post"
   novalidate
   class="validated-form"
@@ -13,7 +13,7 @@
       class="form-control"
       type="text"
       id="title"
-      name="title"
+      name="campground[title]"
       value="<%= campgrounds.title%>"
       required
     />
@@ -24,7 +24,7 @@
     <div class="input-group">
       <span class="input-group-text" id="price-label">$</span>
       <input
-        name="price"
+        name="campground[price]"
         id="price"
         type="text"
         class="form-control"
@@ -43,8 +43,8 @@
       class="form-control"
       type="text"
       id="locationC"
-      name="locationC"
-      value="<%= locArr[0]%>"
+      name="campground[locationC]"
+      value="<%=locArr[0]%>"
       required
     />
   </div>
@@ -55,8 +55,8 @@
       class="form-control"
       type="text"
       id="locationP"
-      name="locationP"
-      value="<%= locArr[1]%>"
+      name="campground[locationP]"
+      value="<%=locArr[1]%>"
       required
     />
   </div>
@@ -67,7 +67,7 @@
       class="form-control"
       type="text"
       id="image"
-      name="image"
+      name="campground[image]"
       value="<%= campgrounds.image%>"
       required
     />
@@ -78,7 +78,7 @@
       class="form-control"
       type="text"
       id="description"
-      name="description"
+      name="campground[description]"
       required
     >
 <%= campgrounds.description%></textarea

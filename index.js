@@ -6,6 +6,7 @@ const ejsMate = require("ejs-mate");
 const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
+const Joi = require("joi");
 
 //parsers
 app.use(express.urlencoded({ extended: true }));
@@ -41,13 +42,12 @@ app.get("/campgrounds/new", async (req, res) => {
 app.post(
   "/campgrounds",
   asyncWrapper(async (req, res, next) => {
-    if (!req.body.title) throw new ExpressError("Invalid Campground Data", 400);
-    const obj = {
-      ...req.body,
-      location: `${req.body.locationC}, ${req.body.locationP}`,
-    };
+    if (!req.body.campground)
+      throw new ExpressError("Invalid Campground Data", 400);
 
-    const campgrounds = new Campground(obj);
+    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
+
+    const campgrounds = new Campground(req.body.campground);
     await campgrounds.save();
     res.redirect("/campgrounds");
   })
@@ -80,20 +80,17 @@ app.get(
 app.patch(
   "/campgrounds/:id",
   asyncWrapper(async (req, res) => {
-    const { id: sid } = req.params;
+    const { id } = req.params;
+    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
 
-    const campgrounds = await Campground.findOneAndUpdate(
-      { id: sid },
-      {
-        ...req.body,
-        location: `${req.body.locationC}, ${req.body.locationP}`,
-      },
-
+    const campgrounds = await Campground.findByIdAndUpdate(
+      id,
+      { ...req.body.campground },
       {
         runValidators: true,
       }
     );
-    console.log(campgrounds);
+
     res.redirect(`/campgrounds/${campgrounds._id}`);
   })
 );
