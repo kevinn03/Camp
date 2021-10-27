@@ -6,8 +6,8 @@ const ejsMate = require("ejs-mate");
 const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
-const Joi = require("joi");
 
+const { campgroundSchema } = require("./schemas.js");
 //parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -23,6 +23,16 @@ async function main() {
   console.log("Mongo connection open");
 }
 const Campground = require("./model/campground");
+
+const validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((ele) => ele.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
+};
 
 //index
 app.get(
@@ -41,25 +51,8 @@ app.get("/campgrounds/new", async (req, res) => {
 //create
 app.post(
   "/campgrounds",
+  validateCampground,
   asyncWrapper(async (req, res, next) => {
-    // if (!req.body.campground)
-    //   throw new ExpressError("Invalid Campground Data", 400);
-
-    const campgroundSchema = Joi.object({
-      campground: Joi.object({
-        title: Joi.string().required(),
-        price: Joi.number().required().min(0),
-        image: Joi.string().required(),
-        locationC: Joi.string().required(),
-        locationP: Joi.string().required(),
-        description: Joi.string().required(),
-      }).required(),
-    });
-    const { error } = campgroundSchema.validate(req.body);
-    if (error) {
-      const msg = error.details.map((ele) => ele.message).join(",");
-      throw new ExpressError(msg, 400);
-    }
     req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
 
     const campgrounds = new Campground(req.body.campground);
@@ -94,6 +87,7 @@ app.get(
 //update
 app.patch(
   "/campgrounds/:id",
+  validateCampground,
   asyncWrapper(async (req, res) => {
     const { id } = req.params;
     req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
