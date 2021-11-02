@@ -23,6 +23,7 @@ async function main() {
   console.log("Mongo connection open");
 }
 const Campground = require("./model/campground");
+const Review = require("./model/review");
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
@@ -114,6 +115,20 @@ app.delete(
     console.log("Deleted!");
 
     res.redirect("/campgrounds");
+  })
+);
+
+app.post(
+  "/campgrounds/:id/reviews",
+  asyncWrapper(async (req, res) => {
+    const { id } = req.params;
+
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
