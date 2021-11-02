@@ -7,7 +7,7 @@ const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
 
-const { campgroundSchema } = require("./schemas.js");
+const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -27,6 +27,16 @@ const Review = require("./model/review");
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msg = error.details.map((ele) => ele.message).join(",");
+    throw new ExpressError(msg, 400);
+  } else {
+    next();
+  }
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body);
   if (error) {
     const msg = error.details.map((ele) => ele.message).join(",");
     throw new ExpressError(msg, 400);
@@ -120,6 +130,7 @@ app.delete(
 
 app.post(
   "/campgrounds/:id/reviews",
+  validateReview,
   asyncWrapper(async (req, res) => {
     const { id } = req.params;
 
