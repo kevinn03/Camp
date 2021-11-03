@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const { campgroundSchema } = require("../schemas");
+const Review = require("./review");
 
 const Schema = mongoose.Schema;
 
@@ -14,6 +16,13 @@ const campGroundSchema = new Schema({
       ref: "Review",
     },
   ],
+});
+
+// delete middleware
+campGroundSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await Review.remove({ _id: { $in: doc.reviews } });
+  }
 });
 
 const Campground = mongoose.model("Campground", campGroundSchema);
