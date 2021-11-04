@@ -6,6 +6,7 @@ const ejsMate = require("ejs-mate");
 const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
 
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //parsers
