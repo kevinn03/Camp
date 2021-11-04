@@ -17,6 +17,8 @@ const asyncWrapper = require("./utility/asyncWrapper");
 const ExpressError = require("./utility/ExpressError");
 const mongoose = require("mongoose");
 
+const campgrounds = require("./routes/campground");
+
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect("mongodb://localhost:27017/camp");
@@ -45,88 +47,8 @@ const validateReview = (req, res, next) => {
   }
 };
 
-//index
-app.get(
-  "/campgrounds",
-  asyncWrapper(async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render("campgrounds/index.ejs", { campgrounds });
-  })
-);
+app.use("/campgrounds", campgrounds);
 
-//serve create form
-app.get("/campgrounds/new", async (req, res) => {
-  res.render("campgrounds/newForm");
-});
-
-//create
-app.post(
-  "/campgrounds",
-  validateCampground,
-  asyncWrapper(async (req, res, next) => {
-    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
-
-    const campgrounds = new Campground(req.body.campground);
-    await campgrounds.save();
-    res.redirect("/campgrounds");
-  })
-);
-
-//show
-app.get(
-  "/campgrounds/:id",
-  asyncWrapper(async (req, res) => {
-    const { id } = req.params;
-    const campgrounds = await Campground.findById(id).populate("reviews");
-
-    res.render("campgrounds/show.ejs", { campgrounds });
-  })
-);
-
-// serve edit form
-app.get(
-  "/campgrounds/:id/edit",
-  asyncWrapper(async (req, res) => {
-    const { id } = req.params;
-    const campgrounds = await Campground.findById(id);
-    const locArr = campgrounds.location.split(",");
-    locArr[0] = locArr[0].trim();
-    locArr[1] = locArr[1].trim();
-    res.render("campgrounds/edit.ejs", { campgrounds, locArr });
-  })
-);
-
-//update
-app.patch(
-  "/campgrounds/:id",
-  validateCampground,
-  asyncWrapper(async (req, res) => {
-    const { id } = req.params;
-    req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
-
-    const campgrounds = await Campground.findByIdAndUpdate(
-      id,
-      { ...req.body.campground },
-      {
-        runValidators: true,
-      }
-    );
-
-    res.redirect(`/campgrounds/${campgrounds._id}`);
-  })
-);
-
-//delete
-app.delete(
-  "/campgrounds/:id",
-  asyncWrapper(async (req, res) => {
-    const { id: sid } = req.params;
-
-    await Campground.findByIdAndDelete(sid);
-
-    res.redirect("/campgrounds");
-  })
-);
 //create review
 app.post(
   "/campgrounds/:id/reviews",
