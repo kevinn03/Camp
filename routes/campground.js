@@ -4,6 +4,7 @@ const asyncWrapper = require("../utility/asyncWrapper");
 const ExpressError = require("../utility/ExpressError");
 const Campground = require("../model/campground");
 const { campgroundSchema, reviewSchema } = require("../schemas.js");
+const { isLoggedIn } = require("../middleware");
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body);
@@ -25,13 +26,14 @@ router.get(
 );
 
 //serve create form
-router.get("/new", async (req, res) => {
+router.get("/new", isLoggedIn, async (req, res) => {
   res.render("campgrounds/newForm");
 });
 
 //create
 router.post(
   "/",
+  isLoggedIn,
   validateCampground,
   asyncWrapper(async (req, res, next) => {
     req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
@@ -46,6 +48,7 @@ router.post(
 //show
 router.get(
   "/:id",
+
   asyncWrapper(async (req, res) => {
     const { id } = req.params;
     const campgrounds = await Campground.findById(id).populate("reviews");
@@ -60,6 +63,7 @@ router.get(
 // serve edit form
 router.get(
   "/:id/edit",
+  isLoggedIn,
   asyncWrapper(async (req, res) => {
     const { id } = req.params;
     const campgrounds = await Campground.findById(id);
@@ -77,6 +81,7 @@ router.get(
 //update
 router.patch(
   "/:id",
+  isLoggedIn,
   validateCampground,
   asyncWrapper(async (req, res) => {
     const { id } = req.params;
@@ -97,6 +102,7 @@ router.patch(
 //delete
 router.delete(
   "/:id",
+  isLoggedIn,
   asyncWrapper(async (req, res) => {
     const { id: sid } = req.params;
 
