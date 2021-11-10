@@ -7,6 +7,10 @@ const ejsMate = require("ejs-mate");
 const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./model/user");
+
 app.use(express.static(path.join(__dirname, "public")));
 const sessionConfig = {
   secret: "thisisascret",
@@ -20,6 +24,13 @@ const sessionConfig = {
 };
 app.use(session(sessionConfig));
 app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
@@ -44,6 +55,12 @@ async function main() {
   await mongoose.connect("mongodb://localhost:27017/camp");
   console.log("Mongo connection open");
 }
+
+app.get("/fakeUser", async (req, res) => {
+  const user = new User({ email: "kevin@gmail.com", username: "kevin" });
+  const newUser = await User.register(user, "password");
+  res.send(newUser);
+});
 
 app.use("/campgrounds", campgrounds);
 app.use("/campgrounds/:id/reviews", reviews);
