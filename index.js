@@ -48,22 +48,19 @@ app.set("view engine", "ejs");
 const ExpressError = require("./utility/ExpressError");
 const mongoose = require("mongoose");
 
-const campgrounds = require("./routes/campground");
-const reviews = require("./routes/review");
+const campgroundRoutes = require("./routes/campground");
+const reviewRoutes = require("./routes/review");
+const userRoutes = require("./routes/user");
+
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect("mongodb://localhost:27017/camp");
   console.log("Mongo connection open");
 }
 
-app.get("/fakeUser", async (req, res) => {
-  const user = new User({ email: "kevin@gmail.com", username: "kevin" });
-  const newUser = await User.register(user, "password");
-  res.send(newUser);
-});
-
-app.use("/campgrounds", campgrounds);
-app.use("/campgrounds/:id/reviews", reviews);
+app.use("/", userRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/reviews", reviewRoutes);
 
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page not Found", 404));
