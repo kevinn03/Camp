@@ -7,6 +7,10 @@ const ejsMate = require("ejs-mate");
 const app = express();
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./model/user");
+
 app.use(express.static(path.join(__dirname, "public")));
 const sessionConfig = {
   secret: "thisisascret",
@@ -21,7 +25,15 @@ const sessionConfig = {
 app.use(session(sessionConfig));
 app.use(flash());
 
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
@@ -37,16 +49,19 @@ app.set("view engine", "ejs");
 const ExpressError = require("./utility/ExpressError");
 const mongoose = require("mongoose");
 
-const campgrounds = require("./routes/campground");
-const reviews = require("./routes/review");
+const campgroundRoutes = require("./routes/campground");
+const reviewRoutes = require("./routes/review");
+const userRoutes = require("./routes/user");
+
 main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect("mongodb://localhost:27017/camp");
   console.log("Mongo connection open");
 }
 
-app.use("/campgrounds", campgrounds);
-app.use("/campgrounds/:id/reviews", reviews);
+app.use("/", userRoutes);
+app.use("/campgrounds", campgroundRoutes);
+app.use("/campgrounds/:id/reviews", reviewRoutes);
 
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page not Found", 404));
