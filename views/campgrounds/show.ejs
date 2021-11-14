@@ -15,6 +15,7 @@
 
         <li class="list-group-item">$<%= campgrounds.price%>/night</li>
       </ul>
+      <%if(currentUser && campgrounds.author.equals(currentUser._id)){ %>
       <div class="card-body">
         <a
           href="/campgrounds/<%= campgrounds._id%>/edit"
@@ -29,6 +30,7 @@
           <button class="btn btn-danger">Delete</button>
         </form>
       </div>
+      <% } %>
     </div>
   </div>
   <div class="col-6">
