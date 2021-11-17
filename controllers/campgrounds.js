@@ -16,8 +16,14 @@ module.exports.createCampground = async (req, res, next) => {
   req.body.campground.location = `${req.body.campground.locationC}, ${req.body.campground.locationP}`;
 
   const campground = new Campground(req.body.campground);
+  campground.images = req.files.map((f) => ({
+    url: f.path,
+    filename: f.filename,
+  }));
+
   campground.author = req.user._id;
   await campground.save();
+  console.log(campground);
   req.flash("success", "Successfully made a new campground");
   res.redirect("/campgrounds");
 };
@@ -70,6 +76,13 @@ module.exports.updateCampground = async (req, res) => {
       runValidators: true,
     }
   );
+  const imgs = req.files.map((f) => ({
+    url: f.path,
+    filename: f.filename,
+  }));
+
+  campground.images.push(...imgs);
+  await campground.save();
   req.flash("success", "Successfully updated");
   res.redirect(`/campgrounds/${campground._id}`);
 };
