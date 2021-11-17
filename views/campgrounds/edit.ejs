@@ -1,8 +1,8 @@
 <% layout("layouts/boilerplate") %>
-<h1><%= campgrounds.title %></h1>
+<h1><%= campground.title %></h1>
 
 <form
-  action="/campgrounds/<%= campgrounds._id%>?_method=patch"
+  action="/campgrounds/<%= campground._id%>?_method=patch"
   method="post"
   novalidate
   class="validated-form"
@@ -14,7 +14,7 @@
       type="text"
       id="title"
       name="campground[title]"
-      value="<%= campgrounds.title%>"
+      value="<%= campground.title%>"
       required
     />
   </div>
@@ -31,7 +31,7 @@
         placeholder="0.00"
         aria-label="price"
         aria-describedby="price-label"
-        value="<%= campgrounds.price%>"
+        value="<%= campground.price%>"
         required
       />
     </div>
@@ -68,7 +68,7 @@
       type="text"
       id="image"
       name="campground[image]"
-      value="<%= campgrounds.image%>"
+      value="<%= campground.image%>"
       required
     />
   </div>
@@ -81,12 +81,12 @@
       name="campground[description]"
       required
     >
-<%= campgrounds.description%></textarea
+<%= campground.description%></textarea
     >
   </div>
 
   <div class="mb-3">
     <button class="btn btn-info">Update Campground</button>
   </div>
-  <a href="/campgrounds/<%= campgrounds._id%>">Back to Campground</a>
+  <a href="/campgrounds/<%= campground._id%>">Back to Campground</a>
 </form>
