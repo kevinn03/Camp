@@ -5,23 +5,21 @@ const asyncWrapper = require("../utility/asyncWrapper");
 const passport = require("passport");
 const users = require("../controllers/users");
 
-// get registration form
-router.get("/register", users.renderRegister);
+router
+  .route("/register")
+  .get(users.renderRegister)
+  .post(asyncWrapper(users.register));
 
-//register user
-router.post("/register", asyncWrapper(users.register));
+router
+  .route("/login")
+  .get(users.renderLogin)
+  .post(
+    passport.authenticate("local", {
+      failureFlash: true,
+      failureRedirect: "/login",
+    }),
+    users.login
+  );
 
-// login form
-router.get("/login", users.renderLogin);
-//login user
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    failureFlash: true,
-    failureRedirect: "/login",
-  }),
-  users.login
-);
-//logout
 router.get("/logout", users.logout);
 module.exports = router;
