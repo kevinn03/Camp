@@ -3,6 +3,9 @@ const router = express.Router();
 const asyncWrapper = require("../utility/asyncWrapper");
 const campgrounds = require("../controllers/campgrounds");
 const Campground = require("../model/campground");
+const multer = require("multer");
+const { storage } = require("../cloudinary");
+const upload = multer({ storage });
 
 const { isLoggedIn, validateCampground, isAuthor } = require("../middleware");
 
@@ -11,6 +14,7 @@ router
   .get(asyncWrapper(campgrounds.index))
   .post(
     isLoggedIn,
+    upload.array("campground[images]"),
     validateCampground,
     asyncWrapper(campgrounds.createCampground)
   );
@@ -24,6 +28,7 @@ router
   .patch(
     isLoggedIn,
     isAuthor,
+    upload.array("campground[images]"),
     validateCampground,
     asyncWrapper(campgrounds.updateCampground)
   )
